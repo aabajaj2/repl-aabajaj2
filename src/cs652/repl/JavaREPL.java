@@ -1,6 +1,14 @@
 package cs652.repl;
 
+import com.sun.source.util.JavacTask;
+import com.sun.tools.javac.resources.compiler;
+
+import javax.tools.*;
 import java.io.*;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class JavaREPL {
 	public static void main(String[] args) throws IOException {
@@ -14,6 +22,7 @@ public class JavaREPL {
 
 		while (true) {
 			System.out.print(">");
+
 			//String java = reader.getNestedString();
 			//System.out.println(java);
 			// TODO
@@ -22,9 +31,11 @@ public class JavaREPL {
 			String stat=null;
 			String filename = "Interp_"+classNumber+".java";
 			String classname="Interp_"+classNumber;
+			String absoluteFilePath = "/temp" + "/"+filename;
 			String extendSuper=getSuperClass(classNumber);
 			String content = getCode(classname,extendSuper,java,stat);
 			writeFile("/temp",filename,content);
+			compile(absoluteFilePath);
 			classNumber++;
 		}
 	}
@@ -44,7 +55,7 @@ public class JavaREPL {
 		fileWriter = new FileWriter(absoluteFilePath);
 		bufferedWriter = new BufferedWriter(fileWriter);
 		bufferedWriter.write(content);
-		//System.out.println("File created");
+		System.out.println(filename);
 		bufferedWriter.close();
 		fileWriter.close();
 	}
@@ -54,16 +65,40 @@ public class JavaREPL {
 		sb.append("import java.io.*;\n" +
 				"import java.util.*;\n" );
 		if(extendSuper!=null)
-            sb.append("public class" + className + " extends " + extendSuper + "{\n" + "public static" +
+            sb.append("public class " + className + " extends " + extendSuper + "{\n" + "public static" +
                     " " + def + "\n" +
                     "    public static void exec() {\n" +
                     "    }\n" +
                     "}");
-        else sb.append("public class" + className + "{\n" + "public static" +
+        else sb.append("public class " + className + "{\n" + "public static" +
                 " " + def + "\n" +
                 "    public static void exec() {\n" +
                 "    }\n" +
                 "}");
 		return sb.toString();
+	}
+    public static void compile(String fileName) throws IOException {
+		//This code snippet is from http://www.java2s.com/Code/Java/JDK-6/CompileaJavafilewithJavaCompiler.htm
+		// and http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html, modified according to the requirements.
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		File[] files = new File("/Temp").listFiles();
+		System.out.println(files.length);
+		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
+		List<File> cfiles=new ArrayList<>();
+		for (File file : files) {
+			String extension = file.getName().substring(file.getName().lastIndexOf(".") + 1, file.getName().length());
+			if(extension.equals("java")){
+				cfiles.add(file);
+			}
+		}
+			Iterable<? extends JavaFileObject> compilationUnits = fileManager
+				.getJavaFileObjectsFromFiles(cfiles);
+		JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null,
+				null, compilationUnits);
+		boolean success = task.call();
+		fileManager.close();
+		System.out.println("Success: " + success);
+		System.out.println(diagnostics.getDiagnostics());
 	}
 }
