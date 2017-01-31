@@ -1,13 +1,15 @@
 package cs652.repl;
 
+
 import com.sun.source.util.JavacTask;
-import com.sun.tools.javac.resources.compiler;
 
 import javax.tools.*;
 import java.io.*;
-import java.nio.file.Files;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class JavaREPL {
@@ -17,28 +19,53 @@ public class JavaREPL {
 
 	public static void exec(Reader r) throws IOException {
 		BufferedReader stdin = new BufferedReader(r);
-		//NestedReader reader = new NestedReader(stdin);
+		NestedReader reader = new NestedReader(stdin);
 		int classNumber = 0;
 
 		while (true) {
 			System.out.print(">");
-
-			//String java = reader.getNestedString();
-			//System.out.println(java);
+			//String java2 = reader.getNestedString();
+			//System.out.println(java2);
 			// TODO
-			String java=stdin.readLine();
-			String def=null;
+			//String java=stdin.readLine();
+			//String java=stdin.readLine();
+			String def=stdin.readLine();
 			String stat=null;
 			String filename = "Interp_"+classNumber+".java";
 			String classname="Interp_"+classNumber;
-			String absoluteFilePath = "/temp" + "/"+filename;
 			String extendSuper=getSuperClass(classNumber);
-			String content = getCode(classname,extendSuper,java,stat);
+			String content = getCode(classname,extendSuper,def,stat);
 			writeFile("/temp",filename,content);
-			compile(absoluteFilePath);
+			boolean success=compile();
+			if(!success){
+				stat=def;
+				def=null;
+				content = getCode(classname,extendSuper,def,stat);
+				writeFile("/temp",filename,content);
+				compile();
+			}
+			try {
+				getOutput(classname);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			//System.out.println(success);
 			classNumber++;
 		}
 	}
+	/*public static boolean isDeclaration(String line) throws IOException {
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
+		Iterable<? extends JavaFileObject> compilationUnits = fileManager
+				.getJavaFileObjectsFromFiles(cfiles);
+		String[] compileOptions = new String[]{"-d", classesDir.getAbsolutePath()} ;
+		Iterable<String> compilationOptions = Arrays.asList(compileOptions);		JavacTask task = (JavacTask)
+				compiler.getTask(null, fileManager, diagnostics,
+						compileOptions, null, compilationUnits);
+		boolean ok = task.call();
+		return diagnostics.getDiagnostics().size() == 0;
+	}*/
 
 	private static String getSuperClass(int classNumber) {
 		String es=null;
@@ -59,25 +86,40 @@ public class JavaREPL {
 		bufferedWriter.close();
 		fileWriter.close();
 	}
-	private static String getCode(String className, String extendSuper, String def, String stat)
-	{
+	private static String getCode(String className, String extendSuper, String def, String stat) {
 		StringBuilder sb=new StringBuilder();
 		sb.append("import java.io.*;\n" +
 				"import java.util.*;\n" );
-		if(extendSuper!=null)
-            sb.append("public class " + className + " extends " + extendSuper + "{\n" + "public static" +
-                    " " + def + "\n" +
-                    "    public static void exec() {\n" +
-                    "    }\n" +
-                    "}");
-        else sb.append("public class " + className + "{\n" + "public static" +
-                " " + def + "\n" +
-                "    public static void exec() {\n" +
-                "    }\n" +
-                "}");
+		if(extendSuper!=null) {
+			if (stat == null) {
+				sb.append("public class " + className + " extends " + extendSuper + "{\n" + "public static" +
+						" " + def + "\n" +
+						"    public static void exec() {\n" +
+						"    }\n" +
+						"}");
+			}else {
+				sb.append("public class " + className + " extends " + extendSuper + "{\n"+
+						"    public static void exec() {\n" +
+						"" +stat +"    }\n" +
+						"}");
+			}
+		}
+		else{ if (stat == null) {
+			sb.append("public class " + className + "{\n" + "public static" +
+					" " + def + "\n" +
+					"    public static void exec() {\n" +
+					"    }\n" +
+					"}");
+		}else {
+			sb.append("public class " + className + "{\n"+
+					"    public static void exec() {\n" +
+							"" +stat +"    }\n" +
+							"}");
+		}
+		}
 		return sb.toString();
 	}
-    public static void compile(String fileName) throws IOException {
+    public static Boolean compile() throws IOException {
 		//This code snippet is from http://www.java2s.com/Code/Java/JDK-6/CompileaJavafilewithJavaCompiler.htm
 		// and http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html, modified according to the requirements.
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -99,6 +141,14 @@ public class JavaREPL {
 		boolean success = task.call();
 		fileManager.close();
 		System.out.println("Success: " + success);
-		System.out.println(diagnostics.getDiagnostics());
+		//System.out.println(diagnostics.getDiagnostics());
+		return success;
+	}
+	public static void getOutput(String filename) throws Exception {
+		URL tmpURL = new File("/Temp").toURI().toURL();
+		ClassLoader loader = new URLClassLoader(new URL[]{tmpURL});
+		Class cl = loader.loadClass(filename);
+		Method m=cl.getDeclaredMethod("exec");
+		m.invoke(null);
 	}
 }

@@ -2,58 +2,44 @@ package cs652.repl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.Stack;
 
 /**
  * Created by Anjani Bajaj on 1/28/2017.
  */
-public class NestedReader {
+class NestedReader {
 
-    private BufferedReader br;
-    public NestedReader(BufferedReader stdin) {
-        br=stdin;
+    private StringBuilder buf;    // fill this as you process, character by character
+    private BufferedReader input; // where are we reading from?
+    private int c; // current character of lookahead; reset upon each getNestedString() call
+
+    NestedReader(BufferedReader stdin) {
+        input = stdin;
+        buf = new StringBuilder();
     }
 
+    private void consume() throws IOException {
+        buf.append((char) c);
+        c = input.read();
+    }
     public String getNestedString() throws IOException {
-        String line = br.readLine();
-        //System.out.println(line);
-        StringBuffer sb=new StringBuffer();
-        if (line.contains("{")) {
-            if (line != "}") {
-                sb.append(line);
-                System.out.println("BRAC:"+line);
-            }else{
-                System.out.println("BRAC 2");
-            }
-            return line;
-        } else if (line.endsWith(";")) {
-            sb.append(line);
-            System.out.println("; line:"+sb.toString());
-        }
-    /*  StringBuffer sb = new StringBuffer();
-        while (!line.isEmpty()) {
-            if (line.contains("{")) {
-                while (line != "}") {
-                    sb.append(line);
-                }
-                return line;
-            } else if (line.endsWith(";")) {
-                sb.append(line);
-            }
-        }
-        System.out.println(sb.toString());
-        return sb.toString();*
-
-        /*switch (br.readLine()){
-                case ";":  System.out.println("In cASe ;");returnString=br.readLine();
-                break;
-                case "{": System.out.println("In case {");while(br.readLine()!="}"){
-                    returnString=br.readLine();
-                }break;
-                default: returnString=null;
+        Stack<Character> stack = new Stack<>();
+        c = input.read();
+        //System.out.println("c=" + (char) c);
+        consume();
+        while (true) {
+            c=input.read();
+            switch (c) {
+                case '{':
+                    while (c!='}'){
+                        consume();
+                    }
+                default:
+                    consume();
                     break;
             }
-            return returnString;
-    }*/
-    return line;
+            return buf.toString();
+        }
     }
 }
+
