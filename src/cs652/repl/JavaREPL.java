@@ -6,7 +6,6 @@ import com.sun.source.util.JavacTask;
 import javax.tools.*;
 import java.io.*;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -24,12 +23,12 @@ public class JavaREPL {
 
 		while (true) {
 			System.out.print(">");
-			//String java2 = reader.getNestedString();
-			//System.out.println(java2);
+			String java2 = reader.getNestedString();
+			System.out.println(java2);
+			//break;
 			// TODO
 			//String java=stdin.readLine();
-			//String java=stdin.readLine();
-			String def=stdin.readLine();
+			String def=java2;
 			String stat=null;
 			String filename = "Interp_"+classNumber+".java";
 			String classname="Interp_"+classNumber;
@@ -100,7 +99,7 @@ public class JavaREPL {
 			}else {
 				sb.append("public class " + className + " extends " + extendSuper + "{\n"+
 						"    public static void exec() {\n" +
-						"" +stat +"    }\n" +
+						"" +stat +"   \n }\n" +
 						"}");
 			}
 		}
@@ -113,7 +112,7 @@ public class JavaREPL {
 		}else {
 			sb.append("public class " + className + "{\n"+
 					"    public static void exec() {\n" +
-							"" +stat +"    }\n" +
+							"" +stat +"   \n }\n" +
 							"}");
 		}
 		}
