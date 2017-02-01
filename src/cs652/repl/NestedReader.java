@@ -26,8 +26,8 @@ class NestedReader {
 
     public String getNestedString() throws IOException {
         Stack<Character> stack = new Stack<>();
-       // c=input.read();
-        buf = new StringBuilder();
+        c=input.read();
+        //buf = new StringBuilder();
         while(true){
         //c=input.read();
             switch (c){
@@ -44,8 +44,10 @@ class NestedReader {
                 }
                     default:if(c=='\n' && stack.isEmpty()) {
                         return buf.toString();
-                    }else {consume();
-                        break;}
+                    }else {
+                        consume();
+                        break;
+                    }
             }
         }
             //System.out.println("String:"+buf.toString());

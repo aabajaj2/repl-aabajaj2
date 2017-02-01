@@ -78,7 +78,7 @@ public class TestREPL {
 		}
 		Collection<Object[]> result = new ArrayList<>();
 		// only feed test methods with .java source files.
-		File dir = new File(testFolder.getPath());
+		File dir = new File(testFolder.getFile());
 		File[] files = dir.listFiles();
 		if ( files!=null ) {
 			for (File f : files) {
