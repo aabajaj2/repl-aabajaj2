@@ -26,11 +26,11 @@ public class JavaREPL {
 		Path tempDir = Files.createTempDirectory("tmp");
 		//String java2=null;
 		while (true) {
-
-			System.out.print(">");
+			if(stdin.toString().isEmpty()) {
+				System.out.print(">");
+			}
 			String java2 = reader.getNestedString();
 			if(!java2.equals("999")) {
-				//System.out.println(java2);
 			//break;
 			// TODO
 			//String def=stdin.readLine()
@@ -66,9 +66,7 @@ public class JavaREPL {
 					}
 				} else {
 					classNumber--;
-					//System.err.println();
 				}
-				//System.out.println(success);
 			}else {
 				break;
 		 	}
@@ -79,12 +77,8 @@ public class JavaREPL {
 		//System.out.println("Path 2:"+tempDir);
 		String content=getCode("Bogus",null,line,null);
 		writeFile(tempDir.toString(),"Bogus.java",content);
-		/*if(line.matches("print .*"))
-		{
-
-		}else{
-
-		}*/
+		line=checkforPrint(line);
+		//System.out.println("LINE:"+line);
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
@@ -97,6 +91,21 @@ public class JavaREPL {
 		return diagnostics.getDiagnostics().size()==0;
 		//System.out.println(diagnostics.getDiagnostics().size());
 	}
+
+	private static String checkforPrint(String line) {
+		if(line.matches("print .*"))
+		{
+			String printLines[]=line.split(" ");
+			//System.out.println("EXPR:"+printLines[1]);
+			if(printLines[1].contains(";")){
+				String pl2[]=printLines[1].split(";");
+				line="System.out.print("+pl2[0]+");";
+			//	System.out.println(line);
+			}
+		}
+		return line;
+	}
+
 	private static String getSuperClass(int classNumber)
 	{
 		String es=null;
@@ -156,7 +165,6 @@ public class JavaREPL {
 		// and http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html, modified according to the requirements.
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		File[] files = new File(tempDir).listFiles();
-		//System.out.println(files.length);
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
 		List<File> cfiles=new ArrayList<>();
@@ -172,14 +180,18 @@ public class JavaREPL {
 				null, compilationUnits);
 		boolean success = task.call();
 		fileManager.close();
+		getError(diagnostics);
 		//System.out.println("Success: " + success);
 		/*Following code snippet is from
 		 http://www.programcreek.com/java-api-examples/index.php?source_dir=blogix-master/src/main/java/net/mindengine/blogix/compiler/BlogixCompiler.java*/
 		//System.setErr(new PrintStream(new ByteArrayOutputStream()));
+		return success;
+	}
+
+	private static void getError(DiagnosticCollector<JavaFileObject> diagnostics) {
 		for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
 			System.err.println("line "+ diagnostic.getLineNumber()+": "+ diagnostic.getMessage(null));
 		}
-		return success;
 	}
 
 	public static void getOutput(String filename, String tempDir) throws Exception {
