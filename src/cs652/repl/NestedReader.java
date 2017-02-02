@@ -26,35 +26,44 @@ class NestedReader {
 
     public String getNestedString() throws IOException {
         Stack<Character> stack = new Stack<>();
-        c=input.read();
-        buf=new StringBuilder();
-        while(true){
-        //c=input.read();
-                switch (c) {
-                    case '{':
-                        stack.push('}');
-                        consume();
-                        break;
-                    case '}':
-                        if (stack.peek().equals('}')) {
-                            consume();
-                            stack.pop();
-                            //System.out.println("In closing bracket");
-                        } else {
-                            return buf.toString();
-                        }
-                        case -1: return "999";
-                    default:
-                        if (c == '\n' && stack.isEmpty()) {
-                            return buf.toString();
-                        } else {
+
+        c = input.read();
+        buf = new StringBuilder();
+
+            while (true) {
+                //c=input.read();
+                if(c!=-1) {
+                    switch (c) {
+                        case '{':
+                            stack.push('}');
                             consume();
                             break;
-                        }
+                        case '}':
+                            if (stack.peek().equals('}')) {
+                                consume();
+                                stack.pop();
+                                //System.out.println("In closing bracket");
+                            } else {
+                                return buf.toString().trim();
+                            }
+                            //case -1: System.exit(0);
+                        default:
+                            if (c == '\n' && stack.isEmpty()) {
+                                return buf.toString().trim();
+                            } else {
+                                consume();
+                                break;
+                            }
+                    }
+                }else {
+                    return "999";
                 }
+
             }
         }
             //System.out.println("String:"+buf.toString());
             //c=input.read();
 }
+
+
 
