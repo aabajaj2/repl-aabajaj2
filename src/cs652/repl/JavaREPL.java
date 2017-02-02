@@ -5,18 +5,24 @@ import com.sun.source.util.JavacTask;
 
 import javax.tools.*;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JavaREPL {
+
 	public static void main(String[] args) throws IOException {
 		exec(new InputStreamReader(System.in));
 	}
 
 	public static void exec(Reader r) throws IOException {
+		Path tempDir = Files.createTempDirectory("tmp");
 		BufferedReader stdin = new BufferedReader(r);
 		NestedReader reader = new NestedReader(stdin);
 		int classNumber = 0;
@@ -24,28 +30,30 @@ public class JavaREPL {
 		while (true) {
 			System.out.print(">");
 			String java2 = reader.getNestedString();
-			//File dir=createTempDirectory();
+
 			//System.out.println(java2);
 			//break;
 			// TODO
 			//String def=stdin.readLine();
+
 			String def=java2;
 			String stat=null;
 			String filename = "Interp_"+classNumber+".java";
 			String classname="Interp_"+classNumber;
 			String extendSuper=getSuperClass(classNumber);
 			String content = getCode(classname,extendSuper,def,stat);
-			writeFile("/temp",filename,content);
-			boolean success=compile();
+			System.out.println("Path of the tmp directory:"+tempDir);
+			writeFile(tempDir.toString(),filename,content);
+			boolean success=compile(tempDir.toString());
 			if(!success){
 				stat=def;
 				def=null;
 				content = getCode(classname,extendSuper,def,stat);
-				writeFile("/temp",filename,content);
-				compile();
+				writeFile(tempDir.toString(),filename,content);
+				compile(tempDir.toString());
 			}
 			try {
-				getOutput(classname);
+				getOutput(classname,tempDir.toString());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -66,7 +74,6 @@ public class JavaREPL {
 		boolean ok = task.call();
 		return diagnostics.getDiagnostics().size() == 0;
 	}*/
-
 	private static String getSuperClass(int classNumber) {
 		String es=null;
 		if(classNumber!=0){
@@ -118,31 +125,12 @@ public class JavaREPL {
 		}
 		}
 		return sb.toString();
-	}// This function is apdopted from http://stackoverflow.com/questions/617414/how-to-create-a-temporary-directory-folder-in-java
-	public static File createTempDirectory()
-			throws IOException
-	{
-		final File temp;
-
-		temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
-
-		if(!(temp.delete()))
-		{
-			throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
-		}
-
-		if(!(temp.mkdir()))
-		{
-			throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
-		}
-
-		return (temp);
 	}
-    public static Boolean compile() throws IOException {
+    public static Boolean compile(String tempDir) throws IOException {
 		//This code snippet is from http://www.java2s.com/Code/Java/JDK-6/CompileaJavafilewithJavaCompiler.htm
 		// and http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html, modified according to the requirements.
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
-		File[] files = new File("/Temp").listFiles();
+		File[] files = new File(tempDir).listFiles();
 		//System.out.println(files.length);
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
@@ -160,11 +148,12 @@ public class JavaREPL {
 		boolean success = task.call();
 		fileManager.close();
 		System.out.println("Success: " + success);
-		//System.out.println(diagnostics.getDiagnostics());
+		System.out.println(diagnostics.getDiagnostics());
+		System.err.println(diagnostics.getDiagnostics());
 		return success;
 	}
-	public static void getOutput(String filename) throws Exception {
-		URL tmpURL = new File("/Temp").toURI().toURL();
+	public static void getOutput(String filename, String tempDir) throws Exception {
+		URL tmpURL = new File(tempDir).toURI().toURL();
 		ClassLoader loader = new URLClassLoader(new URL[]{tmpURL});
 		Class cl = loader.loadClass(filename);
 		Method m=cl.getDeclaredMethod("exec");
