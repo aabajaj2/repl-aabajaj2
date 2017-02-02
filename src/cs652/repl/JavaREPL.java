@@ -29,7 +29,6 @@ public class JavaREPL {
 		int classNumber = 0;
 
 		while (true) {
-
 			System.out.print(">");
 			String java2 = reader.getNestedString();
 			//System.out.println(java2);
@@ -60,6 +59,7 @@ public class JavaREPL {
 					writeFile(tempDir.toString(), filename, content);
 					compile(tempDir.toString());
 				}*/
+			classNumber++;
 				if (success == true) {
 					try {
 						getOutput(classname, tempDir.toString());
@@ -67,11 +67,12 @@ public class JavaREPL {
 						e.printStackTrace();
 					}
 				} else {
+					classNumber=0;
 					System.err.println();
 				}
 
 				//System.out.println(success);
-				classNumber++;
+
 			}else {
 				break;
 			}
