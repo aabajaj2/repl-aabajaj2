@@ -73,7 +73,7 @@ public class JavaREPL {
 				//System.out.println(success);
 			//}else {
 			//	break;
-		//	}
+		// 	}
 		}
 	}
 	public static boolean isDeclaration(String line) throws IOException {
