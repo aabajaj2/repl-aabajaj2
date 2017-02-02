@@ -24,10 +24,11 @@ public class JavaREPL {
 		while (true) {
 			System.out.print(">");
 			String java2 = reader.getNestedString();
-			System.out.println(java2);
+			//File dir=createTempDirectory();
+			//System.out.println(java2);
 			//break;
 			// TODO
-			//String java=stdin.readLine();
+			//String def=stdin.readLine();
 			String def=java2;
 			String stat=null;
 			String filename = "Interp_"+classNumber+".java";
@@ -81,7 +82,7 @@ public class JavaREPL {
 		fileWriter = new FileWriter(absoluteFilePath);
 		bufferedWriter = new BufferedWriter(fileWriter);
 		bufferedWriter.write(content);
-		System.out.println(filename);
+		//System.out.println(filename);
 		bufferedWriter.close();
 		fileWriter.close();
 	}
@@ -117,13 +118,32 @@ public class JavaREPL {
 		}
 		}
 		return sb.toString();
+	}// This function is apdopted from http://stackoverflow.com/questions/617414/how-to-create-a-temporary-directory-folder-in-java
+	public static File createTempDirectory()
+			throws IOException
+	{
+		final File temp;
+
+		temp = File.createTempFile("temp", Long.toString(System.nanoTime()));
+
+		if(!(temp.delete()))
+		{
+			throw new IOException("Could not delete temp file: " + temp.getAbsolutePath());
+		}
+
+		if(!(temp.mkdir()))
+		{
+			throw new IOException("Could not create temp directory: " + temp.getAbsolutePath());
+		}
+
+		return (temp);
 	}
     public static Boolean compile() throws IOException {
 		//This code snippet is from http://www.java2s.com/Code/Java/JDK-6/CompileaJavafilewithJavaCompiler.htm
 		// and http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html, modified according to the requirements.
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		File[] files = new File("/Temp").listFiles();
-		System.out.println(files.length);
+		//System.out.println(files.length);
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
 		List<File> cfiles=new ArrayList<>();

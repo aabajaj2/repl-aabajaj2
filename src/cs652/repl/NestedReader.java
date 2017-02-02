@@ -27,30 +27,34 @@ class NestedReader {
     public String getNestedString() throws IOException {
         Stack<Character> stack = new Stack<>();
         c=input.read();
-        //buf = new StringBuilder();
+        buf=new StringBuilder();
         while(true){
         //c=input.read();
-            switch (c){
-                case '{':stack.push('}');
-                    consume();
-                    break;
-                case '}': if(stack.peek().equals('}')) {
-                    consume();
-                    stack.pop();
-                    //System.out.println("In closing bracket");
-                }
-                    else {
-                    return buf.toString();
-                }
-                    default:if(c=='\n' && stack.isEmpty()) {
-                        return buf.toString();
-                    }else {
+                switch (c) {
+                    case '{':
+                        stack.push('}');
                         consume();
                         break;
-                    }
+                    case '}':
+                        if (stack.peek().equals('}')) {
+                            consume();
+                            stack.pop();
+                            //System.out.println("In closing bracket");
+                        } else {
+                            return buf.toString();
+                        }
+                        //case -1: break;
+                    default:
+                        if (c == '\n' && stack.isEmpty()) {
+                            return buf.toString();
+                        } else {
+                            consume();
+                            break;
+                        }
+                }
             }
         }
             //System.out.println("String:"+buf.toString());
             //c=input.read();
-    }
 }
+
