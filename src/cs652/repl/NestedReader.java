@@ -43,7 +43,7 @@ class NestedReader {
                         } else {
                             return buf.toString();
                         }
-                        //case -1: break;
+                        //case -1: return "-1";
                     default:
                         if (c == '\n' && stack.isEmpty()) {
                             return buf.toString();

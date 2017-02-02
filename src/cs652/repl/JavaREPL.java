@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class JavaREPL {
@@ -28,45 +29,50 @@ public class JavaREPL {
 		int classNumber = 0;
 
 		while (true) {
-			System.out.print(">");
-			String java2 = reader.getNestedString();
 
+			System.out.print(">");
+				String java2 = reader.getNestedString();
 			//System.out.println(java2);
 			//break;
 			// TODO
 			//String def=stdin.readLine();
 
-			String def=java2;
-			String stat=null;
-			String filename = "Interp_"+classNumber+".java";
-			String classname="Interp_"+classNumber;
-			String extendSuper=getSuperClass(classNumber);
-			String content = getCode(classname,extendSuper,def,stat);
-			System.out.println("Path of the tmp directory:"+tempDir);
-			writeFile(tempDir.toString(),filename,content);
-			boolean success=compile(tempDir.toString());
-			if(!success){
-				stat=def;
-				def=null;
-				content = getCode(classname,extendSuper,def,stat);
-				writeFile(tempDir.toString(),filename,content);
-				compile(tempDir.toString());
-			}
-			try {
-				getOutput(classname,tempDir.toString());
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			//System.out.println(success);
-			classNumber++;
+				String def = java2;
+				String stat = null;
+				String filename = "Interp_" + classNumber + ".java";
+				String classname = "Interp_" + classNumber;
+				String extendSuper = getSuperClass(classNumber);
+				String content = getCode(classname, extendSuper, def, stat);
+				//System.out.println("Path of the tmp directory:" + tempDir);
+				writeFile(tempDir.toString(), filename, content);
+				boolean success = compile(tempDir.toString());
+				if (!success) {
+					stat = def;
+					def = null;
+					content = getCode(classname, extendSuper, def, stat);
+					writeFile(tempDir.toString(), filename, content);
+					compile(tempDir.toString());
+				}
+				if(!success) {
+					try {
+						getOutput(classname, tempDir.toString());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				//System.out.println(success);
+				classNumber++;
+
 		}
 	}
 	/*public static boolean isDeclaration(String line) throws IOException {
+		Path tempDir = Files.createTempDirectory("tmp");
+		writeFile(tempDir.toString(),"Bogus",line);
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
 		Iterable<? extends JavaFileObject> compilationUnits = fileManager
-				.getJavaFileObjectsFromFiles(cfiles);
+				.getJavaFileObjects("Bogus");
 		String[] compileOptions = new String[]{"-d", classesDir.getAbsolutePath()} ;
 		Iterable<String> compilationOptions = Arrays.asList(compileOptions);		JavacTask task = (JavacTask)
 				compiler.getTask(null, fileManager, diagnostics,
@@ -74,9 +80,11 @@ public class JavaREPL {
 		boolean ok = task.call();
 		return diagnostics.getDiagnostics().size() == 0;
 	}*/
-	private static String getSuperClass(int classNumber) {
+	private static String getSuperClass(int classNumber)
+	{
 		String es=null;
-		if(classNumber!=0){
+		if(classNumber!=0)
+		{
 			es="Interp_"+(classNumber-1);
 		}
 		return es;
@@ -96,7 +104,7 @@ public class JavaREPL {
 	private static String getCode(String className, String extendSuper, String def, String stat) {
 		StringBuilder sb=new StringBuilder();
 		sb.append("import java.io.*;\n" +
-				"import java.util.*;\n" );
+				"import java.util.*;\n\n\n" );
 		if(extendSuper!=null) {
 			if (stat == null) {
 				sb.append("public class " + className + " extends " + extendSuper + "{\n" + "public static" +
@@ -147,9 +155,12 @@ public class JavaREPL {
 				null, compilationUnits);
 		boolean success = task.call();
 		fileManager.close();
-		System.out.println("Success: " + success);
-		System.out.println(diagnostics.getDiagnostics());
-		System.err.println(diagnostics.getDiagnostics());
+		//System.out.println("Success: " + success);
+		for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
+			System.err.format("line %d: %s", diagnostic.getLineNumber(), diagnostic.getMessage(null));
+			//System.out.println("line "+ diagnostic.getLineNumber()+": "+ diagnostic.getMessage(null));
+		}
+		//System.out.println();
 		return success;
 	}
 	public static void getOutput(String filename, String tempDir) throws Exception {
