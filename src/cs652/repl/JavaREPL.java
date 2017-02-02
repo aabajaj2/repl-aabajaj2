@@ -23,19 +23,19 @@ public class JavaREPL {
 	}
 
 	public static void exec(Reader r) throws IOException {
-		Path tempDir = Files.createTempDirectory("tmp");
 		BufferedReader stdin = new BufferedReader(r);
 		NestedReader reader = new NestedReader(stdin);
 		int classNumber = 0;
-
+		Path tempDir = Files.createTempDirectory("tmp");
+		//String java2=null;
 		while (true) {
 			System.out.print(">");
 			String java2 = reader.getNestedString();
-			//System.out.println(java2);
+			//if(!java2.equals("999")) {
+				//System.out.println(java2);
 			//break;
 			// TODO
 			//String def=stdin.readLine()
-			if(!java2.equals("999")) {
 				boolean ok = isDeclaration(java2);
 				String def = null;
 				String stat = null;
@@ -67,16 +67,13 @@ public class JavaREPL {
 						e.printStackTrace();
 					}
 				} else {
-					classNumber=0;
+					classNumber--;
 					System.err.println();
 				}
-
 				//System.out.println(success);
-
-			}else {
-				break;
-			}
-
+			//}else {
+			//	break;
+		//	}
 		}
 	}
 	public static boolean isDeclaration(String line) throws IOException {
