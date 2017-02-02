@@ -31,55 +31,71 @@ public class JavaREPL {
 		while (true) {
 
 			System.out.print(">");
-				String java2 = reader.getNestedString();
+			String java2 = reader.getNestedString();
 			//System.out.println(java2);
 			//break;
 			// TODO
-			//String def=stdin.readLine();
-
-				String def = java2;
+			//String def=stdin.readLine()
+			if(!java2.equals("999")) {
+				boolean ok = isDeclaration(java2);
+				String def = null;
 				String stat = null;
+				if (ok) {
+					def = java2;
+				} else {
+					stat = java2;
+				}
 				String filename = "Interp_" + classNumber + ".java";
 				String classname = "Interp_" + classNumber;
 				String extendSuper = getSuperClass(classNumber);
 				String content = getCode(classname, extendSuper, def, stat);
 				//System.out.println("Path of the tmp directory:" + tempDir);
+				//System.out.println("Is declaration:" + ok);
 				writeFile(tempDir.toString(), filename, content);
 				boolean success = compile(tempDir.toString());
-				if (!success) {
+				/*if (!success) {
 					stat = def;
 					def = null;
 					content = getCode(classname, extendSuper, def, stat);
 					writeFile(tempDir.toString(), filename, content);
 					compile(tempDir.toString());
-				}
-				if(!success) {
+				}*/
+				if (success == true) {
 					try {
 						getOutput(classname, tempDir.toString());
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
+				} else {
+					System.err.println();
 				}
+
 				//System.out.println(success);
 				classNumber++;
+			}else {
+				break;
+			}
 
 		}
 	}
-	/*public static boolean isDeclaration(String line) throws IOException {
+	public static boolean isDeclaration(String line) throws IOException {
 		Path tempDir = Files.createTempDirectory("tmp");
-		writeFile(tempDir.toString(),"Bogus",line);
+		//System.out.println("Path 2:"+tempDir);
+		String content=getCode("Bogus",null,line,null);
+		writeFile(tempDir.toString(),"Bogus.java",content);
+
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
 		Iterable<? extends JavaFileObject> compilationUnits = fileManager
-				.getJavaFileObjects("Bogus");
-		String[] compileOptions = new String[]{"-d", classesDir.getAbsolutePath()} ;
-		Iterable<String> compilationOptions = Arrays.asList(compileOptions);		JavacTask task = (JavacTask)
-				compiler.getTask(null, fileManager, diagnostics,
-						compileOptions, null, compilationUnits);
-		boolean ok = task.call();
-		return diagnostics.getDiagnostics().size() == 0;
-	}*/
+				.getJavaFileObjectsFromStrings(Arrays.asList(tempDir.toString()+"/Bogus.java"));
+		JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null,
+				null, compilationUnits);
+		boolean success = task.call();
+		fileManager.close();
+		return diagnostics.getDiagnostics().size()==0;
+		//System.out.println(diagnostics.getDiagnostics().size());
+	}
 	private static String getSuperClass(int classNumber)
 	{
 		String es=null;
@@ -134,7 +150,7 @@ public class JavaREPL {
 		}
 		return sb.toString();
 	}
-    public static Boolean compile(String tempDir) throws IOException {
+	public static Boolean compile(String tempDir) throws IOException {
 		//This code snippet is from http://www.java2s.com/Code/Java/JDK-6/CompileaJavafilewithJavaCompiler.htm
 		// and http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html, modified according to the requirements.
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
@@ -156,13 +172,18 @@ public class JavaREPL {
 		boolean success = task.call();
 		fileManager.close();
 		//System.out.println("Success: " + success);
+		//Following code snippet is from
+		// http://www.programcreek.com/java-api-examples/index.php?source_dir=blogix-master/src/main/java/net/mindengine/blogix/compiler/BlogixCompiler.java
+		//System.setErr(new PrintStream(new ByteArrayOutputStream()));
 		for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
-			System.err.format("line %d: %s", diagnostic.getLineNumber(), diagnostic.getMessage(null));
-			//System.out.println("line "+ diagnostic.getLineNumber()+": "+ diagnostic.getMessage(null));
+			//System.err.format("line %d: %s\n", diagnostic.getLineNumber(), diagnostic.getMessage(null));
+			System.err.println("line "+ diagnostic.getLineNumber()+": "+ diagnostic.getMessage(null));
 		}
 		//System.out.println();
 		return success;
 	}
+
+
 	public static void getOutput(String filename, String tempDir) throws Exception {
 		URL tmpURL = new File(tempDir).toURI().toURL();
 		ClassLoader loader = new URLClassLoader(new URL[]{tmpURL});
