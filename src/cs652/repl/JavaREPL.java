@@ -2,6 +2,8 @@ package cs652.repl;
 
 
 
+import com.sun.source.util.JavacTask;
+
 import javax.tools.*;
 import java.io.*;
 import java.lang.reflect.Method;
@@ -81,22 +83,22 @@ public class JavaREPL {
 	}
 	public static boolean isDeclaration(String line) throws IOException {
 		Path tempDir = Files.createTempDirectory("tmp");
-		//System.out.println("Path 2:"+tempDir);
-		//System.out.println("LINE:"+line);
-		if(line.contains("extends .*?")){
-			line=line.replaceAll("extends .*?","");
-		}
+
 		String content=getCode("Bogus",null,line,null);
 		writeFile(tempDir.toString(),"Bogus.java",content);
-		//System.out.println("LINE:"+line);
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
 		StandardJavaFileManager fileManager = compiler.getStandardFileManager(diagnostics, null, null);
 		Iterable<? extends JavaFileObject> compilationUnits = fileManager
 				.getJavaFileObjectsFromStrings(Arrays.asList(tempDir.toString()+"/Bogus.java"));
-		JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null,
-				null, compilationUnits);
-		boolean success = task.call();
+		//JavaCompiler.CompilationTask task = compiler.getTask(null, fileManager, diagnostics, null,
+		//		null, compilationUnits);
+		//Iterable<String> compileOptions;
+		JavacTask task = (JavacTask)
+				compiler.getTask(null, fileManager, diagnostics,
+						null, null, compilationUnits);
+		//boolean success =
+		task.parse();
 		fileManager.close();
 		return diagnostics.getDiagnostics().size()==0;
 		//System.out.println(diagnostics.getDiagnostics().size());
