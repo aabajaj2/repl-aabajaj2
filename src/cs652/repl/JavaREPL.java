@@ -83,6 +83,9 @@ public class JavaREPL {
 		Path tempDir = Files.createTempDirectory("tmp");
 		//System.out.println("Path 2:"+tempDir);
 		//System.out.println("LINE:"+line);
+		if(line.contains("extends .*?")){
+			line=line.replaceAll("extends .*?","");
+		}
 		String content=getCode("Bogus",null,line,null);
 		writeFile(tempDir.toString(),"Bogus.java",content);
 		//System.out.println("LINE:"+line);
@@ -105,7 +108,7 @@ public class JavaREPL {
 
 		if(line.matches("print .*"))
 		{
-			String printLines[]=line.split(" ");
+			String printLines[]=line.split("print ");
 			if(printLines[1].contains(";")){
 				String pl2[]=printLines[1].split(";");
 				line="System.out.println("+pl2[0]+");";

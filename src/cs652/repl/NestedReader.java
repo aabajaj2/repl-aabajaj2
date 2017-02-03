@@ -61,12 +61,22 @@ class NestedReader {
                             } else {
                                 return buf.toString();
                             }
-                            /*case '/': consume();
-                                //c=input.read();
-                                consume();
-                                if(buf.toString().contains("//"))
-                                    input.readLine();
-                                break;*/
+                            case '/': //consume();
+                                c=input.read();
+                               // consume();
+                                if(c=='/') {
+                                    while (c != '\n') {
+                                        c=input.read();
+                                    }
+                                }else {
+                                    consume();
+                                    break;
+                                }
+                                //input.readLine();
+                                break;
+                     //   case ' ':
+                       //     consume();
+                         //   break;
                         default:
                             if (c == '\n' && stack.isEmpty()) {
                                 return buf.toString().trim();
