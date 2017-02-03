@@ -26,7 +26,6 @@ class NestedReader {
 
     public String getNestedString() throws IOException {
         Stack<Character> stack = new Stack<>();
-
         c = input.read();
         buf = new StringBuilder();
 
@@ -46,7 +45,12 @@ class NestedReader {
                             } else {
                                 return buf.toString().trim();
                             }
-                            //case -1: System.exit(0);
+                            /*case '/': consume();
+                                //c=input.read();
+                                consume();
+                                if(buf.toString().contains("//"))
+                                    buf.append("");
+                                break;*/
                         default:
                             if (c == '\n' && stack.isEmpty()) {
                                 return buf.toString().trim();

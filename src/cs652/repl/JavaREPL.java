@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JavaREPL {
-
+	public static boolean flag=true;
 	public static void main(String[] args) throws IOException {
 		exec(new InputStreamReader(System.in));
 	}
@@ -25,15 +25,18 @@ public class JavaREPL {
 		int classNumber = 0;
 		Path tempDir = Files.createTempDirectory("tmp");
 		//String java2=null;
+		//System.out.print(">");
 		while (true) {
 			if(stdin.toString().isEmpty()) {
 				System.out.print(">");
 			}
+				//System.out.print(">");
 			String java2 = reader.getNestedString();
 			if(!java2.equals("999")) {
 			//break;
 			// TODO
 			//String def=stdin.readLine()
+				java2=checkforPrint(java2);
 				boolean ok = isDeclaration(java2);
 				String def = null;
 				String stat = null;
@@ -75,9 +78,9 @@ public class JavaREPL {
 	public static boolean isDeclaration(String line) throws IOException {
 		Path tempDir = Files.createTempDirectory("tmp");
 		//System.out.println("Path 2:"+tempDir);
+		//System.out.println("LINE:"+line);
 		String content=getCode("Bogus",null,line,null);
 		writeFile(tempDir.toString(),"Bogus.java",content);
-		line=checkforPrint(line);
 		//System.out.println("LINE:"+line);
 		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
@@ -99,10 +102,11 @@ public class JavaREPL {
 			//System.out.println("EXPR:"+printLines[1]);
 			if(printLines[1].contains(";")){
 				String pl2[]=printLines[1].split(";");
-				line="System.out.print("+pl2[0]+");";
+				line="System.out.println("+pl2[0]+");";
 			//	System.out.println(line);
 			}
 		}
+		//System.out.println(line);
 		return line;
 	}
 
