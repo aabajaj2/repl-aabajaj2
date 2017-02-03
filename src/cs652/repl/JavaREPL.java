@@ -29,9 +29,7 @@ public class JavaREPL {
 		Path tempDir = Files.createTempDirectory("tmp");
 		tmpURL = new File(tempDir.toString()).toURI().toURL();
 		loader = new URLClassLoader(new URL[]{tmpURL});
-		//String java2=null;
-		//System.out.print(">");
-		//System.out.println((3+4));
+
 		while (true) {
 			if(stdin.toString().isEmpty()) {
 				System.out.print(">");
@@ -97,7 +95,7 @@ public class JavaREPL {
 		JavacTask task = (JavacTask)
 				compiler.getTask(null, fileManager, diagnostics,
 						null, null, compilationUnits);
-		//boolean success =
+
 		task.parse();
 		fileManager.close();
 		return diagnostics.getDiagnostics().size()==0;
@@ -106,7 +104,7 @@ public class JavaREPL {
 
 	private static String checkforPrint(String line) {
 		line=line.replaceAll("\n","");
-		//line=line.replaceAll(";","");
+		line=line.replaceAll("\r","");
 
 		if(line.matches("print .*"))
 		{

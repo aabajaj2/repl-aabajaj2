@@ -28,10 +28,9 @@ class NestedReader {
         Stack<Character> stack = new Stack<>();
         c = input.read();
         buf = new StringBuilder();
-
-            while (true) {
+        while (true) {
                 //c=input.read();
-                if(c!=-1) {
+                if (c != -1) {
                     switch (c) {
                         case '{':
                             stack.push('}');
@@ -50,33 +49,36 @@ class NestedReader {
                             stack.push(')');
                             consume();
                             break;
-                        case ')':consume();
-                            if (stack.peek().equals(')') ) {
-                               // c=input.read();
-                                if(c!=')')
-                                consume();
+                        case ')':
+                            //consume();
+                            if (stack.peek().equals(')')) {
+                                // c=input.read();
+                           //     if (c != ')') {
+                                    consume();
+                             //       }
                                 stack.pop();
                                 break;
                                 //System.out.println("In closing bracket");
-                            } else {
+                            } /*else {
+                                consume();
                                 return buf.toString();
-                            }
-                            case '/': //consume();
-                                c=input.read();
-                               // consume();
-                                if(c=='/') {
-                                    while (c != '\n') {
-                                        c=input.read();
-                                    }
-                                }else {
-                                    consume();
-                                    break;
+                            }*/
+                        case '/': //consume();
+                            c = input.read();
+                            // consume();
+                            if (c == '/') {
+                                while (c != '\n') {
+                                    c = input.read();
                                 }
-                                //input.readLine();
+                            } else {
+                                consume();
                                 break;
-                     //   case ' ':
-                       //     consume();
-                         //   break;
+                            }
+                            //input.readLine();
+                            break;
+                        // case "":
+                        //   consume();
+                        // break;
                         default:
                             if (c == '\n' && stack.isEmpty()) {
                                 return buf.toString().trim();
@@ -85,11 +87,11 @@ class NestedReader {
                                 break;
                             }
                     }
-                }else {
+                } else {
                     return "999";
                 }
             }
-        }
+    }
             //System.out.println("String:"+buf.toString());
             //c=input.read();
 }
