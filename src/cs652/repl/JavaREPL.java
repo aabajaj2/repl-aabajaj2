@@ -22,6 +22,11 @@ public class JavaREPL {
         exec(new InputStreamReader(System.in));
     }
 
+    /**
+     * This method takes input from console, compiles it and returns appropriate output or errors as required.
+     * @param r  Reader that takes input from the console.
+     * @throws IOException
+     */
     public static void exec(Reader r) throws IOException {
         BufferedReader stdin = new BufferedReader(r);
         NestedReader reader = new NestedReader(stdin);
@@ -36,9 +41,6 @@ public class JavaREPL {
             }
             java2 = reader.getNestedString();
             if (!java2.equals("999")) {
-                //break;
-                // TODO
-                //String def=stdin.readLine()
                 java2 = checkforPrint(java2);
                 boolean ok = isDeclaration(java2);
                 String def = null;
@@ -70,6 +72,12 @@ public class JavaREPL {
         }
     }
 
+    /**
+     * This method returns true if the given line is a declartion and false otherwise.
+     * @param line input from the user
+     * @return true if line is a declaration
+     * @throws IOException
+     */
     public static boolean isDeclaration(String line) throws IOException {
         Path tempDir = Files.createTempDirectory("tmp");
         String content = getCode("Bogus", null, line, null);
@@ -87,6 +95,11 @@ public class JavaREPL {
         return diagnostics.getDiagnostics().size() == 0;
     }
 
+    /**
+     * checks if the input has "print expr;" type statement, replaces the prit expr; to System.out.println(expr);
+     * @param line given input
+     * @return replaced String
+     */
     private static String checkforPrint(String line) {
         line = line.replaceAll("\n", "");
         line = line.replaceAll("\r", "");
@@ -101,6 +114,11 @@ public class JavaREPL {
         return line;
     }
 
+    /**
+     * Checks if the given class will have a superClass or not.
+     * @param classNumber
+     * @return name of the super class
+     */
     private static String getSuperClass(int classNumber) {
         String es = null;
         if (classNumber != 0) {
@@ -109,6 +127,13 @@ public class JavaREPL {
         return es;
     }
 
+    /**
+     * This method writes to file given the content
+     * @param dir the temporary directory
+     * @param filename
+     * @param content
+     * @throws IOException
+     */
     private static void writeFile(String dir, String filename, String content) throws IOException {
         BufferedWriter bufferedWriter;
         FileWriter fileWriter;
@@ -120,6 +145,14 @@ public class JavaREPL {
         fileWriter.close();
     }
 
+    /**
+     * For a given line, generates String of code with apt classname with superclass
+     * @param className
+     * @param extendSuper SuperClass for given class
+     * @param def declaration
+     * @param stat statement
+     * @return String of code
+     */
     private static String getCode(String className, String extendSuper, String def, String stat) {
         StringBuilder sb = new StringBuilder();
         sb.append("import java.io.*;\n" +
@@ -154,6 +187,12 @@ public class JavaREPL {
         return sb.toString();
     }
 
+    /**
+     * Compiles the code and generates .class file in the temporary directory
+     * @param tempDir temp directory to store all the .class files.
+     * @return true if compilation is successful.
+     * @throws IOException
+     */
     public static Boolean compile(String tempDir) throws IOException {
         /*This code snippet is from http://www.java2s.com/Code/Java/JDK-6/CompileaJavafilewithJavaCompiler.htm
          and http://docs.oracle.com/javase/7/docs/api/javax/tools/JavaCompiler.html, modified according to the requirements.*/
@@ -178,6 +217,10 @@ public class JavaREPL {
         return success;
     }
 
+    /**
+     * For given diagnostics array this method generates list of errors for the compiler.
+     * @param diagnostics array of diagnostics
+     */
     private static void getError(DiagnosticCollector<JavaFileObject> diagnostics) {
         /*Following code snippet is from
 		 http://www.programcreek.com/java-api-examples/index.php?source_dir=blogix-master/src/main/java/net/mindengine/blogix/compiler/BlogixCompiler.java*/
@@ -186,6 +229,11 @@ public class JavaREPL {
         }
     }
 
+    /**
+     * Generates appropriate output for a given .class file.
+     * @param filename
+     * @throws Exception
+     */
     public static void getOutput(String filename) throws Exception {
         Class cl = loader.loadClass(filename);
         Method m = cl.getDeclaredMethod("exec");

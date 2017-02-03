@@ -6,10 +6,11 @@ import java.util.Stack;
 import java.util.StringTokenizer;
 
 /**
+ * This class handles nested as well as simple inputs from stdin
  * Created by Anjani Bajaj on 1/28/2017.
  */
 class NestedReader {
-
+    // From https://github.com/parrt/cs652/blob/master/projects/Java-REPL.md
     private StringBuilder buf;    // fill this as you process, character by character
     private BufferedReader input; // where are we reading from?
     private int c; // current character of lookahead; reset upon each getNestedString() call
@@ -19,11 +20,20 @@ class NestedReader {
         buf = new StringBuilder();
     }
 
+    /**
+     * Takes one character, appends it to the buffer and increments the lookahead c.
+     * @throws IOException
+     */
     private void consume() throws IOException {
         buf.append((char) c);
         c = input.read();
     }
 
+    /**
+     * returns apt String from the given input
+     * @return
+     * @throws IOException
+     */
     public String getNestedString() throws IOException {
         Stack<Character> stack = new Stack<>();
         c = input.read();
