@@ -14,7 +14,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class JavaREPL {
-	public static boolean flag=true;
+	private static URL tmpURL;
+	private static ClassLoader loader;
 	public static void main(String[] args) throws IOException {
 		exec(new InputStreamReader(System.in));
 	}
@@ -24,8 +25,11 @@ public class JavaREPL {
 		NestedReader reader = new NestedReader(stdin);
 		int classNumber = 0;
 		Path tempDir = Files.createTempDirectory("tmp");
+		tmpURL = new File(tempDir.toString()).toURI().toURL();
+		loader = new URLClassLoader(new URL[]{tmpURL});
 		//String java2=null;
 		//System.out.print(">");
+		//System.out.println((3+4));
 		while (true) {
 			if(stdin.toString().isEmpty()) {
 				System.out.print(">");
@@ -96,17 +100,17 @@ public class JavaREPL {
 	}
 
 	private static String checkforPrint(String line) {
+		line=line.replaceAll("\n","");
+		//line=line.replaceAll(";","");
+
 		if(line.matches("print .*"))
 		{
 			String printLines[]=line.split(" ");
-			//System.out.println("EXPR:"+printLines[1]);
 			if(printLines[1].contains(";")){
 				String pl2[]=printLines[1].split(";");
 				line="System.out.println("+pl2[0]+");";
-			//	System.out.println(line);
 			}
 		}
-		//System.out.println(line);
 		return line;
 	}
 
@@ -199,8 +203,6 @@ public class JavaREPL {
 	}
 
 	public static void getOutput(String filename, String tempDir) throws Exception {
-		URL tmpURL = new File(tempDir).toURI().toURL();
-		ClassLoader loader = new URLClassLoader(new URL[]{tmpURL});
 		Class cl = loader.loadClass(filename);
 		Method m=cl.getDeclaredMethod("exec");
 		m.invoke(null);

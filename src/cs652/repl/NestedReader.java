@@ -38,18 +38,34 @@ class NestedReader {
                             consume();
                             break;
                         case '}':
+                            //consume();
                             if (stack.peek().equals('}')) {
                                 consume();
                                 stack.pop();
+                                break;
+                            } else {
+                                return buf.toString();
+                            }
+                        case '(':
+                            stack.push(')');
+                            consume();
+                            break;
+                        case ')':consume();
+                            if (stack.peek().equals(')') ) {
+                               // c=input.read();
+                                if(c!=')')
+                                consume();
+                                stack.pop();
+                                break;
                                 //System.out.println("In closing bracket");
                             } else {
-                                return buf.toString().trim();
+                                return buf.toString();
                             }
                             /*case '/': consume();
                                 //c=input.read();
                                 consume();
                                 if(buf.toString().contains("//"))
-                                    buf.append("");
+                                    input.readLine();
                                 break;*/
                         default:
                             if (c == '\n' && stack.isEmpty()) {
