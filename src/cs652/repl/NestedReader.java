@@ -30,8 +30,8 @@ class NestedReader {
         buf = new StringBuilder();
         while (true) {
                 //c=input.read();
-                if (c != -1) {
-                    switch (c) {
+            if (c != -1) {
+                  switch (c) {
                         case '{':
                             stack.push('}');
                             consume();
@@ -52,18 +52,12 @@ class NestedReader {
                         case ')':
                             //consume();
                             if (stack.peek().equals(')')) {
-                                // c=input.read();
-                           //     if (c != ')') {
-                                    consume();
-                             //       }
+                                consume();
                                 stack.pop();
                                 break;
                                 //System.out.println("In closing bracket");
-                            } /*else {
-                                consume();
-                                return buf.toString();
-                            }*/
-                        case '/': //consume();
+                            }
+                        case '/':
                             c = input.read();
                             // consume();
                             if (c == '/') {
@@ -76,9 +70,6 @@ class NestedReader {
                             }
                             //input.readLine();
                             break;
-                        // case "":
-                        //   consume();
-                        // break;
                         default:
                             if (c == '\n' && stack.isEmpty()) {
                                 return buf.toString().trim();
@@ -89,12 +80,7 @@ class NestedReader {
                     }
                 } else {
                     return "999";
-                }
             }
+        }
     }
-            //System.out.println("String:"+buf.toString());
-            //c=input.read();
 }
-
-
-
