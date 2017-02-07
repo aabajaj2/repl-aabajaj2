@@ -89,7 +89,7 @@ class NestedReader {
                             }
                     }
                 } else {
-                    return "999";
+                    return null;
             }
         }
     }

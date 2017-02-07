@@ -40,7 +40,7 @@ public class JavaREPL {
             System.out.print(">");
             }
             java2 = reader.getNestedString();
-            if (!java2.equals("999")) { // What is this?
+            if (java2!=null) { // What is this?
                 java2 = checkforPrint(java2);
                 boolean ok = isDeclaration(java2);
                 String def = null;
