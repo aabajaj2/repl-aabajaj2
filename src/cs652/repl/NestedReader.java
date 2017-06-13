@@ -39,7 +39,6 @@ class NestedReader {
         c = input.read();
         buf = new StringBuilder();
         while (true) {
-                //c=input.read();
             if (c != -1) {
                   switch (c) {
                         case '{':
@@ -47,7 +46,6 @@ class NestedReader {
                             consume();
                             break;
                         case '}':
-                            //consume();
                             if (stack.peek().equals('}')) {
                                 consume();
                                 stack.pop();
